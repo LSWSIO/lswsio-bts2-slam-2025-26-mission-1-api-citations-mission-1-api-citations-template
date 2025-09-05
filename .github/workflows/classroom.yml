@@ -1,0 +1,54 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test fichiers obligatoires
+      id: test-fichiers-obligatoires
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test fichiers obligatoires
+        setup-command: ''
+        command: test -f index.html && test -f style.css && test -f script.js && test
+          -f evaluation.json
+        timeout: 1
+        max-score: 2
+    - name: Test QCM evaluation complété
+      id: test-qcm-evaluation-complete
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test QCM evaluation complété
+        setup-command: ''
+        command: 'test -s evaluation.json && grep -q "\"nom\"" evaluation.json &&
+          grep -q "\"reponse\"" evaluation.json && ! grep -q "\"reponse\": \"\"" evaluation.json'
+        timeout: 1
+        max-score: 3
+    - name: Test GitHub Pages accessible
+      id: test-github-pages-accessible
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test GitHub Pages accessible
+        setup-command: ''
+        command: curl -s -o /dev/null -w "%{http_code}" "https://${{ github.actor
+          }}.github.io/assignment-1-api-citations-${{ github.actor }}/" | grep -q
+          "200"
+        timeout: 2
+        max-score: 5
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-FICHIERS-OBLIGATOIRES_RESULTS: "${{steps.test-fichiers-obligatoires.outputs.result}}"
+        TEST-QCM-EVALUATION-COMPLETE_RESULTS: "${{steps.test-qcm-evaluation-complete.outputs.result}}"
+        TEST-GITHUB-PAGES-ACCESSIBLE_RESULTS: "${{steps.test-github-pages-accessible.outputs.result}}"
+      with:
+        runners: test-fichiers-obligatoires,test-qcm-evaluation-complete,test-github-pages-accessible
