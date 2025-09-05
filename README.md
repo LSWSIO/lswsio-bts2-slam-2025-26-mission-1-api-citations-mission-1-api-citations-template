@@ -21,7 +21,7 @@
   "author": "Nom de l'auteur",
   "length": 42
 }
-
+```
 ### Structure projet (OBLIGATOIRE)
 ```
 votre-repo/
