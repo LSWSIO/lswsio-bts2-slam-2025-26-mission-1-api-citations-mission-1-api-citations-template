@@ -25,7 +25,7 @@
 
 ### Structure projet (OBLIGATOIRE)
 
-```
+```text
 votre-repo/
 ├── index.html          ← Page principale
 ├── style.css           ← Styles CSS
